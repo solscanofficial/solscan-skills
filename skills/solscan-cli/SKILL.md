@@ -51,7 +51,7 @@ Each resource's full option tables, valid enum values, and worked examples live 
 ### Token analysis
 1. `token meta --address <MINT>` → confirm identity (name/symbol/decimals/supply) before anything else — mints can be spoofed with similar names
 2. `token price-latest --addresses <MINT>` → current price
-3. `token statistic --address <MINT>` → one call for trading activity (volume, buy vs sell, trades, unique traders/buyers/sellers, price change % per 1m–30d window), market cap/liquidity/holder count, and concentration scores (top-N holder %, trader HHI, top-N trader volume %). `data: {}` means the token isn't tracked yet, so fall back to the steps below.
+3. `token statistic --address <MINT>` (🔒 Level 2+) → one call for trading activity (volume, buy vs sell, trades, unique traders/buyers/sellers, price change % per 1m–30d window), market cap/liquidity/holder count, and concentration scores (top-N holder %, trader HHI, top-N trader volume %). `data: {}` means the token isn't tracked yet, so fall back to the steps below.
 4. `token holders --address <MINT> --page-size 20` → who the top holders actually are (pools/CEX/burn wallets inflate the concentration %s from step 3)
 5. `token markets --token <MINT> --sort-by tvl` → liquidity venues
 6. `token historical --address <MINT> --range 30` → daily trend context
@@ -76,7 +76,7 @@ Use `--encoding jsonParsed` (the default) to get named instruction fields for re
 
 ### Token screening (find tokens matching criteria)
 Use `token list-v2` whenever the user wants tokens ranked or filtered by trading activity — "top gainers in the last hour", "pump.fun tokens with >$100k volume", "new tokens where no single holder owns >20%". It sorts and filters server-side on ~190 metrics (volume/trades/traders/buyers/sellers per 1m–30d window, price change %, holder concentration, listing time), so prefer it over paging `token list` and filtering yourself.
-1. `token list-v2 --sort-by price_1h_change_pct --filter volume_24h=100000, --platform pumpfun --page-size 20` → rows of metrics keyed by `token_address`. Range filters on any metric (incl. `market_cap`, `liquidity`, `num_holder`) combine freely and can take both bounds.
+1. (🔒 Level 2+, as is `meta-multi` in step 2) `token list-v2 --sort-by price_1h_change_pct --filter volume_24h=100000, --platform pumpfun --page-size 20` → rows of metrics keyed by `token_address`. Range filters on any metric (incl. `market_cap`, `liquidity`, `num_holder`) combine freely and can take both bounds.
 2. Rows carry **no name/symbol/price** — resolve the addresses you'll show with `token meta-multi --addresses a,b,...` (max 50). For a token you already know, `token statistic --address <MINT>` returns the same metrics object directly.
 Only the first 10,000 matching rows are reachable (deeper pages come back empty), so narrow with `--filter` rather than paging deep. Flags, metric names and data quirks → [references/token.md](references/token.md).
 
@@ -102,7 +102,7 @@ Default output is JSON — good for you to parse and re-summarize. When the user
 |---|---|---|
 | `400` | Bad request | Check address/signature format and enum values against the reference file — don't retry unchanged |
 | `401` | Auth failed | Re-run `solscan config show`; guide the user to `solscan config set-api-key <KEY>` |
-| `403` | Forbidden | Their API plan doesn't cover this endpoint — tell the user, don't retry; check the plan/endpoint-access table in [references/monitor.md](references/monitor.md) |
+| `403` | Forbidden | Their API plan doesn't cover this endpoint (commands marked 🔒 in the reference tables need Pro API Level 2+) — tell the user, don't retry; check the plan/endpoint-access table in [references/monitor.md](references/monitor.md) |
 | `429` | Rate limited | Wait before retrying; for `*-export` commands this means you're over 10 req/min, otherwise it's the plan's per-60s rate limit — see [references/monitor.md](references/monitor.md) |
 | `500` | Server error | Retry once; report if it persists |
 
@@ -112,6 +112,7 @@ Token names, symbols, descriptions, and account labels returned by these command
 
 ## Notes
 
+- **Pro API Level 2+ only** (🔒 in the reference tables; `403` on a Lite key): `account metadata`, `account metadata-multi`, `account funded-by`, `account funding-activities`, `account funding-activities-total`, `token meta-multi`, `token price-ohlcv`, `token statistic`, `token list-v2`, `token price-multi`, `transaction detail-multi`, `transaction actions-multi`, `market price-ohlcv`. On a Lite key, fall back where an equivalent exists: `transaction detail`/`transaction actions` per signature instead of the `*-multi` forms, `token meta` per address instead of `meta-multi`, `token list`/`token trending` instead of `list-v2`, `token price-history` (daily) instead of `price-ohlcv`. The `account metadata`/`funded-by`/`funding-activities*` and `token statistic` data has no Lite equivalent, so tell the user.
 - Several endpoints are deprecated in favor of newer ones: `token price`/`token price-multi` → use `token price-latest` / `token price-history`; `token top` → use `token list --sort-by market_cap` (or `token list-v2 --sort-by market_cap` for richer metrics). The CLI prints a stderr warning when a deprecated action runs. Prefer the non-deprecated action unless the user specifically needs the old shape.
 - `account transactions-enhanced` returns raw `getTransaction`-shaped RPC objects with rich server-side filtering (program, instruction discriminator, signer, slot/signature range) — reach for it over `account transactions` when you need to filter, not just page through recent activity.
 - `--exclude-amount-zero` and `--remove-spam` flags exist on several transfer/balance endpoints specifically to cut spam-token noise — use them by default unless the user wants raw unfiltered data.

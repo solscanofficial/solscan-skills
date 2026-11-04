@@ -4,15 +4,17 @@
 solscan account <action> [options]
 ```
 
+🔒 = requires **Pro API Level 2+**; on a Lite key the call returns `403` (see [monitor.md](monitor.md#plans-pricing--rate-limits)).
+
 | Action | Description | Required | Optional |
 |--------|-------------|----------|----------|
 | `detail` | Lamports, account type, executable flag, owner program, rent epoch, on-curve check | `--address` | — |
 | `data-decoded` | IDL-decoded account data (parsed field tree, shape depends on owner program) | `--address` | — |
-| `metadata` | Label, icon, tags, domain, funder (deprecated field), active age | `--address` | — |
-| `metadata-multi` | Batch metadata (max 50) | `--addresses` | — |
-| `funded-by` | Funder accounts for multiple accounts (max 50) | `--addresses` | — |
-| `funding-activities` | Native-SOL funding activities performed BY an address (it acting as the funder) | `--address` | `--to`, `--exclude-to`, `--program`, `--amount`, `--value`, `--from-time`, `--to-time`, `--sort-by`, `--sort-order`, `--page`, `--page-size` |
-| `funding-activities-total` | Total funding-activities count for an address (no time-window default, no known cap) | `--address` | same filters as `funding-activities` minus pagination/sort |
+| `metadata` 🔒 | Label, icon, tags, domain, funder (deprecated field), active age | `--address` | — |
+| `metadata-multi` 🔒 | Batch metadata (max 50) | `--addresses` | — |
+| `funded-by` 🔒 | Funder accounts for multiple accounts (max 50) | `--addresses` | — |
+| `funding-activities` 🔒 | Native-SOL funding activities performed BY an address (it acting as the funder) | `--address` | `--to`, `--exclude-to`, `--program`, `--amount`, `--value`, `--from-time`, `--to-time`, `--sort-by`, `--sort-order`, `--page`, `--page-size` |
+| `funding-activities-total` 🔒 | Total funding-activities count for an address (no time-window default, no known cap) | `--address` | same filters as `funding-activities` minus pagination/sort |
 | `tokens` | Associated token/NFT accounts | `--address`, `--type` | `--page`, `--page-size`, `--hide-zero` |
 | `transactions` | Recent transactions, cursor-based pagination | `--address` | `--before`, `--limit` |
 | `transactions-enhanced` | Raw `getTransaction`-shaped objects with full server-side filtering | `--address` | `--cursor`, `--from-time`, `--to-time`, `--from-signature`, `--to-signature`, `--from-slot`, `--to-slot`, `--limit`, `--status`, `--program`, `--instruction`, `--token`, `--signer`, `--token-account`, `--encoding` |

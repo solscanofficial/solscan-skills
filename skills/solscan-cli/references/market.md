@@ -4,13 +4,15 @@
 solscan market <action> [options]
 ```
 
+🔒 = requires **Pro API Level 2+**; on a Lite key the call returns `403` (see [monitor.md](monitor.md#plans-pricing--rate-limits)).
+
 | Action | Description | Required | Optional |
 |--------|-------------|----------|----------|
 | `list` | All trading pools/markets | — | `--page`, `--page-size`, `--program`, `--token-address`, `--sort-by`, `--sort-order` |
 | `info` | Pool/market details by address | `--address` | — |
 | `volume` | Historical volume data | `--address` | `--time` |
 | `positions` | Users' liquidity positions in a pool (CLMM-style AMMs) | `--address` | `--page`, `--page-size`, `--sort-by`, `--sort-order`, `--in-range` |
-| `price-ohlcv` | OHLCV candle data for a pool | `--address` | `--from-time`, `--to-time` (unix seconds), `--res`, `--candles`, `--cursor`, `--direction` |
+| `price-ohlcv` 🔒 | OHLCV candle data for a pool | `--address` | `--from-time`, `--to-time` (unix seconds), `--res`, `--candles`, `--cursor`, `--direction` |
 
 ## Option details
 

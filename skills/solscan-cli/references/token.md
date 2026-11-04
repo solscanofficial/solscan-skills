@@ -4,27 +4,29 @@
 solscan token <action> [options]
 ```
 
+🔒 = requires **Pro API Level 2+**; on a Lite key the call returns `403` (see [monitor.md](monitor.md#plans-pricing--rate-limits)).
+
 | Action | Description | Required | Optional |
 |--------|-------------|----------|----------|
 | `meta` | Full token profile: identity, supply, authorities, creation provenance, live market snapshot (price/mcap/24h volume) | `--address` | — |
-| `meta-multi` | Same object as `meta`, batched — `data` is an array (max 50 addresses) | `--addresses` | — |
+| `meta-multi` 🔒 | Same object as `meta`, batched — `data` is an array (max 50 addresses) | `--addresses` | — |
 | `price-latest` | Latest price of multiple tokens (max 50) | `--addresses` | — |
 | `price-history` | Historical price of multiple tokens (max 50) | `--addresses` | `--from-time`, `--to-time` (YYYYMMDD) |
-| `price-ohlcv` | OHLCV candle data (single token, single pool optional) | `--address` | `--from-time`, `--to-time` (unix seconds), `--res`, `--pool-id`, `--candles`, `--cursor`, `--currency` |
+| `price-ohlcv` 🔒 | OHLCV candle data (single token, single pool optional) | `--address` | `--from-time`, `--to-time` (unix seconds), `--res`, `--pool-id`, `--candles`, `--cursor`, `--currency` |
 | `holders` | Top holder list with amounts | `--address` | `--page`, `--page-size`, `--from-amount`, `--to-amount`, `--from-value`, `--to-value` |
 | `markets` | DEX markets: 1 token = all markets, 2 tokens = pair search | `--token` | `--sort-by`, `--program`, `--page`, `--page-size` |
 | `transfers` | Transfer history for a token | `--address` | `--activity-type`, `--from`, `--exclude-from`, `--to`, `--exclude-to`, `--amount`, `--value`, `--from-time`, `--to-time`, `--exclude-amount-zero`, `--sort-by`, `--sort-order`, `--page`, `--page-size` |
 | `defi` | DeFi activity involving a token | `--address` | `--activity-type`, `--from`, `--source`, `--token`, `--value`, `--from-time`, `--to-time`, `--sort-by`, `--sort-order`, `--page`, `--page-size` |
 | `defi-export` | DeFi activity CSV (max 5000 rows, 10 req/min) | `--address` | `--activity-type`, `--from`, `--platform`, `--source`, `--token`, `--from-time`, `--to-time`, `--sort-by`, `--sort-order`, `--output` |
-| `statistic` | One token's trading stats (volume/trades/traders/buyers/sellers + price change % per 1m–30d window), market cap/liquidity/supply, holder & trader concentration | `--address` | — |
+| `statistic` 🔒 | One token's trading stats (volume/trades/traders/buyers/sellers + price change % per 1m–30d window), market cap/liquidity/supply, holder & trader concentration | `--address` | — |
 | `historical` | Daily historical supply/holder-count/transfer-count/trade-volume time series | `--address` | `--range` (`7`\|`30`, default `7`) |
 | `search` | Search by keyword/address/name/symbol | `--keyword` | `--search-mode`, `--search-by`, `--exclude-unverified`, `--sort-by`, `--sort-order`, `--page`, `--page-size` |
 | `trending` | Ranked trending tokens with identity + 30m/1h/4h/24h volume/trades/traders/price change, liquidity, market cap, holders | — | `--timeframe`, `--page`, `--page-size`, `--limit` (deprecated) |
 | `list` | Full token list | — | `--page`, `--page-size`, `--sort-by`, `--sort-order` |
-| `list-v2` | Token screener: ~190 activity/price/holder metrics per token, sort + range-filter on any of them | — | `--sort-by`, `--sort-order`, `--page`, `--page-size`, `--platform`, `--filter` (repeatable) |
+| `list-v2` 🔒 | Token screener: ~190 activity/price/holder metrics per token, sort + range-filter on any of them | — | `--sort-by`, `--sort-order`, `--page`, `--page-size`, `--platform`, `--filter` (repeatable) |
 | `latest` | Newly listed tokens by launch platform | — | `--platform-id`, `--page`, `--page-size` |
 | `price` ⚠️ deprecated | Single token price history — use `price-history` | `--address` | `--from-time`, `--to-time` |
-| `price-multi` ⚠️ deprecated | Batch price history — use `price-history` | `--addresses` | `--from-time`, `--to-time` |
+| `price-multi` 🔒 ⚠️ deprecated | Batch price history — use `price-history` | `--addresses` | `--from-time`, `--to-time` |
 | `top` ⚠️ deprecated | Top tokens by market cap — use `list --sort-by market_cap` | — | — |
 
 ## Option details

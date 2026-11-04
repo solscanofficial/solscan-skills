@@ -4,12 +4,14 @@
 solscan transaction <action> [options]
 ```
 
+🔒 = requires **Pro API Level 2+**; on a Lite key the call returns `403` (see [monitor.md](monitor.md#plans-pricing--rate-limits)).
+
 | Action | Description | Required | Optional |
 |--------|-------------|----------|----------|
 | `detail` | Full tx details: balance changes, IDL data, DeFi/transfer activity per instruction | `--signature` | — |
-| `detail-multi` | Batch detail (max 50) | `--signatures` | — |
+| `detail-multi` 🔒 | Batch detail (max 50) | `--signatures` | — |
 | `actions` | Human-readable decoded actions (transfers, swaps, NFT activity) | `--signature` | — |
-| `actions-multi` | Batch decoded actions (max 50) | `--signatures` | — |
+| `actions-multi` 🔒 | Batch decoded actions (max 50) | `--signatures` | — |
 | `last` | Most recent transactions | — | `--limit`, `--filter` |
 | `fees` | Network fee statistics | — | — |
 
