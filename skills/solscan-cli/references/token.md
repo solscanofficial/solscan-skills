@@ -21,7 +21,7 @@ solscan token <action> [options]
 | `statistic` | One token's trading stats (volume/trades/traders/buyers/sellers + price change % per 1m–30d window), market cap/liquidity/supply, holder & trader concentration | `--address` | — |
 | `historical` | Daily historical supply/holder-count/transfer-count/trade-volume time series | `--address` | `--range` (`7`\|`30`, default `7`) |
 | `search` | Search by keyword/address/name/symbol | `--keyword` | `--search-mode`, `--search-by`, `--exclude-unverified`, `--sort-by`, `--sort-order`, `--page`, `--page-size` |
-| `trending` | Currently trending tokens | — | `--limit` |
+| `trending` | Ranked trending tokens with identity + 30m/1h/4h/24h volume/trades/traders/price change, liquidity, market cap, holders | — | `--timeframe`, `--page`, `--page-size`, `--limit` (deprecated) |
 | `list` | Full token list | — | `--page`, `--page-size`, `--sort-by`, `--sort-order` |
 | `list-v2` | Token screener: ~190 activity/price/holder metrics per token, sort + range-filter on any of them | — | `--sort-by`, `--sort-order`, `--page`, `--page-size`, `--platform`, `--filter` (repeatable) |
 | `top` | Top tokens by market cap | — | — |
@@ -62,7 +62,12 @@ Transfer/DeFi `--activity-type` enums are the same lists as in [account.md](acco
 - Rows have **no name, symbol, decimals or price**, only `token_address` plus metrics. Resolve identity with `meta-multi` before showing tokens to the user. Response fields and quirks → [responses/token-list-v2.md](responses/token-list-v2.md).
 - `--no-json` prints all 193 fields per row, which gets very long. For user-facing output, take the JSON and show only the relevant columns.
 
-**`trending`**: `--limit` (default `10`, max `100`) - no sort/filter flags. Response rows are identity-only (`address`/`decimals`/`name`/`symbol`) — thinner than `list`/`top`, which also carry `market_cap`/`price`/`holder`; see [responses/token-list.md](responses/token-list.md#trending).
+**`trending`**:
+- `--timeframe` `1h`\|`4h`\|`24h` (default `24h`; anything else → `400`). It chooses **which tokens are listed and their order**, not the metric values. Every row has all four windows (`30m`/`1h`/`4h`/`24h`), whatever the timeframe.
+- `--page` (default `1`, ≥ `1`) · `--page-size` `10/20/30/40` (default `10`; `60`/`100` → `400`, unlike `list`/`list-v2`). The pool is about 300 tokens per timeframe and there is no `total` field. Paging past the end returns `data: []`, so stop on a short or empty page.
+- `--limit` ⚠️ deprecated (1–`100`, default `10`): only reaches the top 100 and prints a deprecation warning on stderr. If `--page` or `--page-size` is also given, `--limit` is ignored (the CLI warns). Prefer `--page`/`--page-size`.
+- No sort or filter flags. The ranking score is opaque and doesn't follow any single returned field, so for "top by <metric>" questions use `list-v2 --sort-by`. Rankings shift within minutes, so de-duplicate by `address` when you combine pages.
+- Rows carry `name`/`symbol`/`decimals` plus metrics, so no `meta-multi` follow-up is needed for display. There is no absolute price; use `price-latest` for it. Fields and quirks → [responses/token-trending.md](responses/token-trending.md).
 
 **`top`**: takes **no options at all** — no pagination, sorting, or limit flag; the API returns a fixed top-N list.
 
@@ -70,12 +75,17 @@ Transfer/DeFi `--activity-type` enums are the same lists as in [account.md](acco
 
 ## Response Fields
 
-Field-by-field description of each action's JSON response (types, meaning, edge cases): [responses/token.md](responses/token.md) (envelope) → [responses/token-info.md](responses/token-info.md) (`meta`, `meta-multi`) / [responses/token-price.md](responses/token-price.md) (`price-latest`, `price-history`, `price`, `price-multi`) / [responses/token-price-ohlcv.md](responses/token-price-ohlcv.md) (`price-ohlcv`) / [responses/token-activity.md](responses/token-activity.md) (`transfers`, `defi`, `defi-export`) / [responses/token-market.md](responses/token-market.md) (`markets`) / [responses/token-holders.md](responses/token-holders.md) (`holders`) / [responses/token-list.md](responses/token-list.md) (`list`, `top`, `trending`, `latest`) / [responses/token-list-v2.md](responses/token-list-v2.md) (`list-v2`) / [responses/token-statistic.md](responses/token-statistic.md) (`statistic`) / [responses/token-historical.md](responses/token-historical.md) (`historical`) / [responses/token-search.md](responses/token-search.md) (`search`).
+Field-by-field description of each action's JSON response (types, meaning, edge cases): [responses/token.md](responses/token.md) (envelope) → [responses/token-info.md](responses/token-info.md) (`meta`, `meta-multi`) / [responses/token-price.md](responses/token-price.md) (`price-latest`, `price-history`, `price`, `price-multi`) / [responses/token-price-ohlcv.md](responses/token-price-ohlcv.md) (`price-ohlcv`) / [responses/token-activity.md](responses/token-activity.md) (`transfers`, `defi`, `defi-export`) / [responses/token-market.md](responses/token-market.md) (`markets`) / [responses/token-holders.md](responses/token-holders.md) (`holders`) / [responses/token-list.md](responses/token-list.md) (`list`, `top`, `latest`) / [responses/token-trending.md](responses/token-trending.md) (`trending`) / [responses/token-list-v2.md](responses/token-list-v2.md) (`list-v2`) / [responses/token-statistic.md](responses/token-statistic.md) (`statistic`) / [responses/token-historical.md](responses/token-historical.md) (`historical`) / [responses/token-search.md](responses/token-search.md) (`search`).
 
 ## Examples
 
 ```bash
+# Trending tokens (default 24h ranking, top 10)
 solscan token trending
+
+# Hottest tokens over the last hour, ranks 21-40
+solscan token trending --timeframe 1h --page 2 --page-size 20
+
 solscan token meta --address So11111111111111111111111111111111111111112
 
 # Latest price, multiple tokens

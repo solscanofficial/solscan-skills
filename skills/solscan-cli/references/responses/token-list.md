@@ -1,15 +1,14 @@
-# Token Response Fields — List / Top / Trending / Latest
+# Token Response Fields — List / Top / Latest
 
-Field-by-field description of the JSON the `token list`, `token top`, `token trending`, and `token latest` commands return. Read this when you need to interpret or extract specific fields from a response, not when you're just building the command (see [../token.md](../token.md) for flags/params). Shared envelope/error shape: [token.md](token.md#common-envelope).
+Field-by-field description of the JSON the `token list`, `token top`, and `token latest` commands return. Read this when you need to interpret or extract specific fields from a response, not when you're just building the command (see [../token.md](../token.md) for flags/params). Shared envelope/error shape: [token.md](token.md#common-envelope).
 
-This covers **bulk token snapshots** — paginated/ranked listings of many tokens at once — as opposed to full single-token detail ([token-info.md](token-info.md), which has far more fields per token). `list` and `top` share one full market-summary row shape; `trending` returns a much thinner identity-only row; `latest` sits in between — don't assume any of the three carry exactly the same fields as another without checking its section below.
+This covers **bulk token snapshots** — paginated/ranked listings of many tokens at once — as opposed to full single-token detail ([token-info.md](token-info.md), which has far more fields per token). `list` and `top` share one full market-summary row shape; `latest` adds a few fields on top — don't assume they carry exactly the same fields without checking its section below. `token trending` has its own, much richer row shape (identity + 30m/1h/4h/24h activity metrics) → [token-trending.md](token-trending.md).
 
 ## Contents
 
 - [`list`](#list)
 - [`top`](#top)
 - [Shared item fields (`list` / `top`)](#shared-item-fields-list--top)
-- [`trending`](#trending)
 - [`latest`](#latest)
 
 > Only actions with a confirmed field-level source are documented here. If the action you need isn't listed yet, fall back to the `--no-json` output or `--help`, and treat unlabeled fields at face value rather than guessing their meaning.
@@ -99,44 +98,7 @@ Both actions return the same per-token shape — `list` at the top level of `dat
 **Interpretation tips**
 
 - These rows are intentionally thin — a fast bulk snapshot for ranking/sorting many tokens, not full token detail. For everything else about a specific token (supply, authorities, off-chain metadata, `market_cap_rank`, volume, etc.) follow up with `token meta --address <address>` — see [token-info.md](token-info.md).
-- `list` and `top` pull from the same underlying market-data snapshot as `token trending` and the market-data fields on `token meta` (`price`, `market_cap`, `price_24h_change`/`price_change_24h`) — don't be surprised if numbers line up closely across commands, modulo cache staleness between calls.
-
-## `trending`
-
-`solscan token trending [--limit <n>]` — the only param is `--limit` (optional, default `10`, max `100`, how many tokens to return) and no sort/filter flags — the API decides what counts as "trending" and in what order.
-
-`data` is a **flat array**, like `list` — but each row is much thinner than the `list`/`top` shape above:
-
-| Field | Type | Description |
-|-------|------|--------------|
-| `address` | string | The token's mint address. |
-| `decimals` | number | Decimals used to convert any raw base-unit amount for this token into a human-readable one. |
-| `name` | string | Token name. |
-| `symbol` | string | Token ticker symbol. |
-
-That's the whole row — **no `market_cap`, `price`, `price_24h_change`, `holder`, or `created_time`**, unlike `list`/`top`'s [shared item fields](#shared-item-fields-list--top). If you need market data for a trending token, follow up with `token meta --address <address>` ([token-info.md](token-info.md)) or look the same address up via `token top`/`token list`.
-
-**Example**:
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "address": "CL4KcMhPpEeNmR7rK7RHsLSTqshoYpasSxHHhduamfe6",
-      "decimals": 9,
-      "name": "Owners Casino Online",
-      "symbol": "OCO"
-    },
-    {
-      "address": "Gouk6Q1JyrHJXymfb7KFJkBtZGDdxmGctu9T14zRpNWu",
-      "decimals": 9,
-      "name": "DopaMeme",
-      "symbol": "DOPA"
-    }
-  ]
-}
-```
+- `list` and `top` pull from the same underlying market-data snapshot as the market-data fields on `token meta` (`price`, `market_cap`, `price_24h_change`/`price_change_24h`) — don't be surprised if numbers line up closely across commands, modulo cache staleness between calls.
 
 ## `latest`
 

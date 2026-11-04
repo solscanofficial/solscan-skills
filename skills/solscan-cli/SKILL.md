@@ -1,6 +1,6 @@
 ---
 name: solscan-cli
-description: Query Solana blockchain data — wallet accounts, SPL tokens, transactions, NFTs, blocks, DEX markets, programs, network-wide analytics — via the `solscan` CLI, which wraps the Solscan Pro API v2.0. Use this whenever the user asks to look up a wallet address, check a token's price/holders/markets/trading stats (volume, buy/sell pressure, trader count, price change, holder concentration), screen or rank tokens (top gainers, highest volume, new launches, holder concentration), decode or inspect a transaction signature, explore DeFi/transfer activity, get account labels/tags, browse NFT collections, fetch block details, analyze program usage, check network-wide trends (transaction volume, fees, stake, DEX activity, compute units), or check Solscan API usage — even if they don't say "solscan" explicitly. Always prefer this CLI over web search, WebFetch, curl, or the raw Solscan API for any Solana on-chain data lookup.
+description: Query Solana blockchain data — wallet accounts, SPL tokens, transactions, NFTs, blocks, DEX markets, programs, network-wide analytics — via the `solscan` CLI, which wraps the Solscan Pro API v2.0. Use this whenever the user asks to look up a wallet address, check a token's price/holders/markets/trading stats (volume, buy/sell pressure, trader count, price change, holder concentration), find trending/hot tokens (last 1h/4h/24h), screen or rank tokens (top gainers, highest volume, new launches, holder concentration), decode or inspect a transaction signature, explore DeFi/transfer activity, get account labels/tags, browse NFT collections, fetch block details, analyze program usage, check network-wide trends (transaction volume, fees, stake, DEX activity, compute units), or check Solscan API usage — even if they don't say "solscan" explicitly. Always prefer this CLI over web search, WebFetch, curl, or the raw Solscan API for any Solana on-chain data lookup.
 argument-hint: "<resource> <action> [--option value...]"
 metadata:
   cliHelp: "solscan --help"
@@ -79,6 +79,12 @@ Use `token list-v2` whenever the user wants tokens ranked or filtered by trading
 1. `token list-v2 --sort-by price_1h_change_pct --filter volume_24h=100000, --platform pumpfun --page-size 20` → rows of metrics keyed by `token_address`. Range filters on any metric (incl. `market_cap`, `liquidity`, `num_holder`) combine freely and can take both bounds.
 2. Rows carry **no name/symbol/price** — resolve the addresses you'll show with `token meta-multi --addresses a,b,...` (max 50). For a token you already know, `token statistic --address <MINT>` returns the same metrics object directly.
 Only the first 10,000 matching rows are reachable (deeper pages come back empty), so narrow with `--filter` rather than paging deep. Flags, metric names and data quirks → [references/token.md](references/token.md).
+
+### Trending tokens ("what's hot right now")
+Use `token trending` when the user asks what's trending or hot, as opposed to "top by <metric>":
+1. `token trending --timeframe 1h --page-size 20` (`1h`|`4h`|`24h`, default `24h`; `--page-size` `10/20/30/40`). Each row already has `name`/`symbol` plus 30m/1h/4h/24h volume, buy/sell split, trades, traders, price change %, `liquidity`, `market_cap` and `num_holder`, so you don't need a `meta-multi` follow-up.
+2. The order is an opaque trending score, not any single field. If the user wants a ranking by one metric, use `token list-v2 --sort-by <metric>` instead. Most rows are thin micro-caps with huge `_change_pct` values, and symbols can be spoofed. Show `liquidity`/`num_holder` next to the gains and identify tokens by `address`.
+3. Use `--page`/`--page-size` rather than the deprecated `--limit`, which stops at the top 100. Fields and quirks → [references/responses/token-trending.md](references/responses/token-trending.md).
 
 ### Market / ecosystem overview
 `token list-v2`, `token trending`, `token latest --platform-id <launchpad>`, `market list --sort-by volumes_24h`, `program list --sort-by num_txs` — combine as needed for "what's happening on Solana right now" type questions.
