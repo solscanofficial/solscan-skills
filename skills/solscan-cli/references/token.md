@@ -10,8 +10,6 @@ solscan token <action> [options]
 | `meta-multi` | Same object as `meta`, batched — `data` is an array (max 50 addresses) | `--addresses` | — |
 | `price-latest` | Latest price of multiple tokens (max 50) | `--addresses` | — |
 | `price-history` | Historical price of multiple tokens (max 50) | `--addresses` | `--from-time`, `--to-time` (YYYYMMDD) |
-| `price` ⚠️ deprecated | Single token price history — use `price-history` | `--address` | `--from-time`, `--to-time` |
-| `price-multi` ⚠️ deprecated | Batch price history — use `price-history` | `--addresses` | `--from-time`, `--to-time` |
 | `price-ohlcv` | OHLCV candle data (single token, single pool optional) | `--address` | `--from-time`, `--to-time` (unix seconds), `--res`, `--pool-id`, `--candles`, `--cursor`, `--currency` |
 | `holders` | Top holder list with amounts | `--address` | `--page`, `--page-size`, `--from-amount`, `--to-amount`, `--from-value`, `--to-value` |
 | `markets` | DEX markets: 1 token = all markets, 2 tokens = pair search | `--token` | `--sort-by`, `--program`, `--page`, `--page-size` |
@@ -24,8 +22,10 @@ solscan token <action> [options]
 | `trending` | Ranked trending tokens with identity + 30m/1h/4h/24h volume/trades/traders/price change, liquidity, market cap, holders | — | `--timeframe`, `--page`, `--page-size`, `--limit` (deprecated) |
 | `list` | Full token list | — | `--page`, `--page-size`, `--sort-by`, `--sort-order` |
 | `list-v2` | Token screener: ~190 activity/price/holder metrics per token, sort + range-filter on any of them | — | `--sort-by`, `--sort-order`, `--page`, `--page-size`, `--platform`, `--filter` (repeatable) |
-| `top` | Top tokens by market cap | — | — |
 | `latest` | Newly listed tokens by launch platform | — | `--platform-id`, `--page`, `--page-size` |
+| `price` ⚠️ deprecated | Single token price history — use `price-history` | `--address` | `--from-time`, `--to-time` |
+| `price-multi` ⚠️ deprecated | Batch price history — use `price-history` | `--addresses` | `--from-time`, `--to-time` |
+| `top` ⚠️ deprecated | Top tokens by market cap — use `list --sort-by market_cap` | — | — |
 
 ## Option details
 
@@ -69,7 +69,9 @@ Transfer/DeFi `--activity-type` enums are the same lists as in [account.md](acco
 - No sort or filter flags. The ranking score is opaque and doesn't follow any single returned field, so for "top by <metric>" questions use `list-v2 --sort-by`. Rankings shift within minutes, so de-duplicate by `address` when you combine pages.
 - Rows carry `name`/`symbol`/`decimals` plus metrics, so no `meta-multi` follow-up is needed for display. There is no absolute price; use `price-latest` for it. Fields and quirks → [responses/token-trending.md](responses/token-trending.md).
 
-**`top`**: takes **no options at all** — no pagination, sorting, or limit flag; the API returns a fixed top-N list.
+**`top`** ⚠️ deprecated: use `list --sort-by market_cap --sort-order desc` instead (same per-token row shape, but pageable). `top` takes **no options at all** — no pagination, sorting, or limit flag; the API returns a fixed top-N list. The CLI prints a deprecation warning on stderr.
+
+**Deprecated actions** (`price`, `price-multi`, `top`) still work but print a deprecation warning on stderr and are listed last in `solscan token --help`. Use the replacement unless the user specifically needs the old response shape.
 
 **`latest`**: `--platform-id` one of `jupiter`, `lifinity`, `meteora`, `orca`, `raydium`, `phoenix`, `sanctum`, `kamino`, `pumpfun`, `openbook`, `apepro`, `stabble`, `jupiterdca`, `jupiter_limit_order`, `solfi`, `zerofi`, `letsbonkfun_launchpad`, `raydium_launchlab`, `believe_launchpad`, `moonshot_launchpad`, `jup_studio_launchpad`, `bags_launchpad`, `stonkfun_launchpad`. `--page-size` `10/20/30/40/60/100`. Response rows are the `list`/`top` shape plus `platform`/`creator`, but `price_24h_change`/`holder` aren't guaranteed present (a freshly-created token may not have them tracked yet) — see [responses/token-list.md](responses/token-list.md#latest).
 

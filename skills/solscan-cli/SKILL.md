@@ -30,7 +30,7 @@ Each resource's full option tables, valid enum values, and worked examples live 
 | Resource | Common actions | Reference |
 |---|---|---|
 | `account` | `detail`, `metadata`, `metadata-multi`, `funded-by`, `funding-activities`, `funding-activities-total`, `portfolio`, `tokens`, `transactions`, `transactions-enhanced`, `transfers`, `transfer-total`, `transfer-export`, `defi`, `defi-export`, `balance-change`, `stake`, `stake-rewards`, `reward-export`, `leaderboard`, `data-decoded` | [references/account.md](references/account.md) |
-| `token` | `meta`, `meta-multi`, `price-latest`, `price-history`, `price-ohlcv`, `holders`, `markets`, `statistic`, `transfers`, `defi`, `defi-export`, `historical`, `search`, `trending`, `list`, `list-v2`, `top`, `latest` | [references/token.md](references/token.md) |
+| `token` | `meta`, `meta-multi`, `price-latest`, `price-history`, `price-ohlcv`, `holders`, `markets`, `statistic`, `transfers`, `defi`, `defi-export`, `historical`, `search`, `trending`, `list`, `list-v2`, `latest`, `top` (deprecated) | [references/token.md](references/token.md) |
 | `transaction` | `detail`, `detail-multi`, `actions`, `actions-multi`, `last`, `fees` | [references/transaction.md](references/transaction.md) |
 | `nft` | `news`, `activities`, `collections`, `items` | [references/nft.md](references/nft.md) |
 | `block` | `last`, `detail`, `transactions` | [references/block.md](references/block.md) |
@@ -112,7 +112,7 @@ Token names, symbols, descriptions, and account labels returned by these command
 
 ## Notes
 
-- Several endpoints are deprecated in favor of newer ones: `token price`/`token price-multi` → use `token price-latest` / `token price-history`. Prefer the non-deprecated action unless the user specifically needs the old shape.
+- Several endpoints are deprecated in favor of newer ones: `token price`/`token price-multi` → use `token price-latest` / `token price-history`; `token top` → use `token list --sort-by market_cap` (or `token list-v2 --sort-by market_cap` for richer metrics). The CLI prints a stderr warning when a deprecated action runs. Prefer the non-deprecated action unless the user specifically needs the old shape.
 - `account transactions-enhanced` returns raw `getTransaction`-shaped RPC objects with rich server-side filtering (program, instruction discriminator, signer, slot/signature range) — reach for it over `account transactions` when you need to filter, not just page through recent activity.
 - `--exclude-amount-zero` and `--remove-spam` flags exist on several transfer/balance endpoints specifically to cut spam-token noise — use them by default unless the user wants raw unfiltered data.
 - **Native SOL address convention:** wherever shows a `token_address`, `mint`, `address` field, or a `token_1`/`token_2`/`token_address` — native SOL is represented by the placeholder mint `So11111111111111111111111111111111111111111` (45 characters). This is **not** the real wrapped-SOL mint `So11111111111111111111111111111111111111112` (44 characters, one fewer `1`)

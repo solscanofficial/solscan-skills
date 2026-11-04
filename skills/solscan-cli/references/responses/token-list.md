@@ -7,7 +7,7 @@ This covers **bulk token snapshots** — paginated/ranked listings of many token
 ## Contents
 
 - [`list`](#list)
-- [`top`](#top)
+- [`top` (deprecated)](#top-deprecated)
 - [Shared item fields (`list` / `top`)](#shared-item-fields-list--top)
 - [`latest`](#latest)
 
@@ -17,7 +17,7 @@ This covers **bulk token snapshots** — paginated/ranked listings of many token
 
 `solscan token list [--sort-by <field>] [--sort-order <order>] [--page <n>] [--page-size <n>]`
 
-Supports up to 50,000 items across a full paginated crawl. `data` is a **flat array** of token summary objects (see [Shared item fields](#shared-item-fields-list--top) below) — unlike `top`, there's no wrapping `total`/`items` object, and no metadata about how many pages exist. Page by incrementing `--page` until a response comes back with fewer rows than `--page-size`.
+Supports up to 50,000 items across a full paginated crawl. `data` is a **flat array** of token summary objects (see [Shared item fields](#shared-item-fields-list--top) below) — unlike `top`, there's no wrapping `total`/`items` object, and no metadata about how many pages exist. Page by incrementing `--page` until a response comes back with fewer rows than `--page-size`. `list --sort-by market_cap` is the replacement for the deprecated `top`.
 
 `--sort-by` accepts `holder` \| `market_cap` \| `created_time`; `--sort-order` accepts `asc` \| `desc`. Both are optional — omit them and the API applies its own default order.
 
@@ -42,9 +42,9 @@ Supports up to 50,000 items across a full paginated crawl. `data` is a **flat ar
 }
 ```
 
-## `top`
+## `top` (deprecated)
 
-`solscan token top` — no query parameters at all; the underlying API takes none, so there's nothing to page or sort with a flag.
+`solscan token top` — **deprecated**, use `solscan token list --sort-by market_cap --sort-order desc` instead: it returns the same per-token row shape (as a flat `data` array rather than `data.items`) and can be paged. The CLI prints a deprecation warning on stderr. No query parameters at all; the underlying API takes none, so there's nothing to page or sort with a flag.
 
 `data` is an **object**, not an array directly:
 

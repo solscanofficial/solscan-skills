@@ -12,7 +12,7 @@ This index only holds the envelope shared by every action. Field-level docs live
 | [token-activity.md](token-activity.md) | Time-ordered activity for a token | `transfers`, `defi`, `defi-export` |
 | [token-market.md](token-market.md) | DEX pool/market listings for a token or pair | `markets` |
 | [token-holders.md](token-holders.md) | Holder distribution and ranking | `holders` |
-| [token-list.md](token-list.md) | Bulk token snapshots — paginated/ranked listings | `list`, `top`, `latest` |
+| [token-list.md](token-list.md) | Bulk token snapshots — paginated/ranked listings | `list`, `top` (deprecated), `latest` |
 | [token-trending.md](token-trending.md) | Ranked trending tokens per timeframe — identity + 30m/1h/4h/24h volume/trade/trader/price-change metrics, liquidity, market cap, holders | `trending` |
 | [token-list-v2.md](token-list-v2.md) | Token screener — per-token volume/trade/trader/price-change/holder metrics | `list-v2` |
 | [token-statistic.md](token-statistic.md) | One token's trading stats, market data and holder/trader concentration (same fields as a `list-v2` row) | `statistic` |
