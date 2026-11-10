@@ -83,7 +83,7 @@ Only the first 10,000 matching rows are reachable (deeper pages come back empty)
 ### Trending tokens ("what's hot right now")
 Use `token trending` when the user asks what's trending or hot, as opposed to "top by <metric>":
 1. `token trending --timeframe 1h --page-size 20` (`1h`|`4h`|`24h`, default `24h`; `--page-size` `10/20/30/40`). Each row already has `name`/`symbol` plus 30m/1h/4h/24h volume, buy/sell split, trades, traders, price change %, `liquidity`, `market_cap` and `num_holder`, so you don't need a `meta-multi` follow-up.
-2. The order is an opaque trending score, not any single field. If the user wants a ranking by one metric, use `token list-v2 --sort-by <metric>` instead. Most rows are thin micro-caps with huge `_change_pct` values, and symbols can be spoofed. Show `liquidity`/`num_holder` next to the gains and identify tokens by `address`.
+2. The order is an opaque trending score, not any single field. If the user wants a ranking by one metric, use `token list-v2 --sort-by <metric>` instead. Most rows are small caps (with WSOL/stablecoins/JUP mixed in) and `_change_pct` can be astronomically large, and symbols can be spoofed. Show `liquidity`/`num_holder` next to the gains and identify tokens by `address`.
 3. Use `--page`/`--page-size` rather than the deprecated `--limit`, which stops at the top 100. Fields and quirks → [references/responses/token-trending.md](references/responses/token-trending.md).
 
 ### Market / ecosystem overview

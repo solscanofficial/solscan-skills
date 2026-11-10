@@ -106,4 +106,4 @@ Solscan's own published endpoint doc under-specifies or mis-describes a few beha
 
 - For the pool's current token reserves (not historical price), use `market info --address <pool_address>` instead; for daily volume/TVL rather than sub-daily OHLCV, use `market volume --address <pool_address>`.
 - `data.data` is sorted ascending by `time` (oldest first) within a page, but consecutive pages (via `--cursor`) move backward through history — concatenating pages in fetch order does **not** give a globally ascending series; sort by `time` again after merging pages if you need one continuous timeline.
-- To find a pool address for a token pair, use `market list --token-address <MINT>` or `token markets --token <MINT>` first, then feed the resulting `pool_address` into `price-ohlcv`.
+- To find a pool address for a token pair, use `market list --token-address <MINT>` or `token markets --token <MINT>` first, then feed the resulting `pool_address` (from `market list`) or `pool_id` (from `token markets`) into `price-ohlcv`.

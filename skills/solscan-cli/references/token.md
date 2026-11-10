@@ -35,7 +35,7 @@ solscan token <action> [options]
 
 **`holders`**: `--page-size` `10/20/30/40` · `--from-amount`/`--to-amount` are raw token amount strings · `--from-value`/`--to-value` are USD.
 
-**`markets`**: `--token` required — pass 1 address for all markets of that token, or 2 comma-separated for a specific pair · `--sort-by` `volume`\|`trade`\|`tvl`\|`trader` · `--program` comma-separated max 5 (DEX program filter) · `--page-size` `10/20/30/40/60/100`.
+**`markets`**: `--token` required — pass 1 address for all markets of that token, or 2 comma-separated for a specific pair (max 2; pair order doesn't matter) · `--sort-by` `volume`\|`trade`\|`tvl`\|`trader`, always descending; omitted = same order as `volume` · `--program` comma-separated max 5 (DEX program filter) · `--page-size` `10/20/30/40/60/100`. The response also includes `metadata.tokens` (name/symbol/icon for every mint on the page), so you don't need a separate `meta-multi` call. `total_tvl` and the `_prev_24h` fields may be missing on some rows — see [responses/token-market.md](responses/token-market.md).
 
 **`price-history`**: `--from-time`/`--to-time` are **`YYYYMMDD`**, not unix timestamps.
 
@@ -66,7 +66,7 @@ Transfer/DeFi `--activity-type` enums are the same lists as in [account.md](acco
 
 **`trending`**:
 - `--timeframe` `1h`\|`4h`\|`24h` (default `24h`; anything else → `400`). It chooses **which tokens are listed and their order**, not the metric values. Every row has all four windows (`30m`/`1h`/`4h`/`24h`), whatever the timeframe.
-- `--page` (default `1`, ≥ `1`) · `--page-size` `10/20/30/40` (default `10`; `60`/`100` → `400`, unlike `list`/`list-v2`). The pool is about 300 tokens per timeframe and there is no `total` field. Paging past the end returns `data: []`, so stop on a short or empty page.
+- `--page` (default `1`, ≥ `1`) · `--page-size` `10/20/30/40` (default `10`; `60`/`100` → `400`, unlike `list`/`list-v2`). The pool is about 250–320 tokens per timeframe and there is no `total` field. Paging past the end returns `data: []`, so stop on a short or empty page.
 - `--limit` ⚠️ deprecated (1–`100`, default `10`): only reaches the top 100 and prints a deprecation warning on stderr. If `--page` or `--page-size` is also given, `--limit` is ignored (the CLI warns). Prefer `--page`/`--page-size`.
 - No sort or filter flags. The ranking score is opaque and doesn't follow any single returned field, so for "top by <metric>" questions use `list-v2 --sort-by`. Rankings shift within minutes, so de-duplicate by `address` when you combine pages.
 - Rows carry `name`/`symbol`/`decimals` plus metrics, so no `meta-multi` follow-up is needed for display. There is no absolute price; use `price-latest` for it. Fields and quirks → [responses/token-trending.md](responses/token-trending.md).
@@ -75,7 +75,7 @@ Transfer/DeFi `--activity-type` enums are the same lists as in [account.md](acco
 
 **Deprecated actions** (`price`, `price-multi`, `top`) still work but print a deprecation warning on stderr and are listed last in `solscan token --help`. Use the replacement unless the user specifically needs the old response shape.
 
-**`latest`**: `--platform-id` one of `jupiter`, `lifinity`, `meteora`, `orca`, `raydium`, `phoenix`, `sanctum`, `kamino`, `pumpfun`, `openbook`, `apepro`, `stabble`, `jupiterdca`, `jupiter_limit_order`, `solfi`, `zerofi`, `letsbonkfun_launchpad`, `raydium_launchlab`, `believe_launchpad`, `moonshot_launchpad`, `jup_studio_launchpad`, `bags_launchpad`, `stonkfun_launchpad`. `--page-size` `10/20/30/40/60/100`. Response rows are the `list`/`top` shape plus `platform`/`creator`, but `price_24h_change`/`holder` aren't guaranteed present (a freshly-created token may not have them tracked yet) — see [responses/token-list.md](responses/token-list.md#latest).
+**`latest`**: `--platform-id` one of `jupiter`, `lifinity`, `meteora`, `orca`, `raydium`, `phoenix`, `sanctum`, `kamino`, `pumpfun`, `openbook`, `apepro`, `stabble`, `jupiterdca`, `jupiter_limit_order`, `solfi`, `zerofi`, `letsbonkfun_launchpad`, `raydium_launchlab`, `believe_launchpad`, `moonshot_launchpad`, `jup_studio_launchpad`, `bags_launchpad`, `stonkfun_launchpad`, `floatlaunch_launchpad`. `--page-size` `10/20/30/40/60/100`. Response rows are the `list`/`top` shape plus `platform`/`creator`, but `price_24h_change`/`holder` aren't guaranteed present (a freshly-created token may not have them tracked yet) — see [responses/token-list.md](responses/token-list.md#latest).
 
 ## Response Fields
 

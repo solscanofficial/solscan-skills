@@ -264,20 +264,22 @@ No `--address` — this ranks accounts **across the whole chain** by USD-valued 
 
 | Field | Type | Description |
 |-------|------|--------------|
-| `data.data` | array of object | The ranked page of accounts, ordered per `--sort-by`/`--sort-order` (default: `total_values` descending is typical, but `--sort-order` is not required — omit it and the API picks its own default direction). |
-| `data.total` | number | Total number of accounts in the full leaderboard (not just this page) — use with `--page`/`--page-size` to compute total pages. |
+| `data.data` | array of object | The ranked page of accounts, ordered per `--sort-by`/`--sort-order`. With no flags, the order is `total_values` **descending** (largest first); `--sort-order asc` returns the smallest accounts in the list first. |
+| `data.total` | number | Total number of accounts in the full leaderboard (not just this page) — use with `--page`/`--page-size` to compute total pages. The leaderboard is a capped top list, not every account on chain (observed `9528`, smallest `total_values` ≈ $340k). |
 
 Each item in `data.data`:
 
 | Field | Type | Description |
 |-------|------|--------------|
 | `account` | string | The ranked address. |
-| `sol_values` | number | USD value of native SOL holdings. |
-| `token_values` | number | USD value of SPL token holdings. |
-| `stake_values` | number | USD value of staked SOL. |
+| `sol_values` | number | USD value of native SOL holdings (≈ `sol_balance` × SOL price), rounded to 2 decimals. |
+| `token_values` | number | USD value of SPL token holdings, rounded to 2 decimals. |
+| `stake_values` | number | USD value of staked SOL (≈ `sol_staked_balance` × SOL price), rounded to 2 decimals. |
 | `total_values` | number | Sum of the three above — the ranking figure when `--sort-by total_values` (the default). |
+| `sol_balance` | number | Native SOL held by the account, **in SOL** (already decimal-adjusted, not lamports; up to 9 decimal places). `0` when the account holds no SOL. |
+| `sol_staked_balance` | number | SOL staked by/through the account, **in SOL** (decimal-adjusted, high-precision float). `0` when nothing is staked. |
 
-**Example**
+**Example** (`solscan account leaderboard --page-size 10`, first 3 rows shown)
 
 ```json
 {
@@ -285,21 +287,34 @@ Each item in `data.data`:
   "data": {
     "data": [
       {
-        "account": "2RH6rUTPBJ9rUDPpuV9b8z1YL56k1tYU6Uk5ZoaEFFSK",
-        "sol_values": 832.15,
-        "token_values": 11542680679.8,
-        "stake_values": 0,
-        "total_values": 11542681511.95
+        "account": "4ZJhPQAgUseCsWhKvJLTmmRRUV74fdoTpQLNfKoekbPY",
+        "sol_values": 7785884.26,
+        "token_values": 394.42,
+        "stake_values": 7410258205.93,
+        "total_values": 7418044484.61,
+        "sol_balance": 89838.568055318,
+        "sol_staked_balance": 85504351.73576747
       },
       {
-        "account": "4ZJhPQAgUseCsWhKvJLTmmRRUV74fdoTpQLNfKoekbPY",
-        "sol_values": 11173984.7,
-        "token_values": 0.04,
-        "stake_values": 10905679993.31,
-        "total_values": 10916853978.05
+        "account": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+        "sol_values": 805987342.55,
+        "token_values": 1678726474.08,
+        "stake_values": 0,
+        "total_values": 2484713816.63,
+        "sol_balance": 9300003.22754752,
+        "sol_staked_balance": 0
+      },
+      {
+        "account": "3gd3dqgtJ4jWfBfLYTX67DALFetjc5iS72sCgRhCkW2u",
+        "sol_values": 514844167.52,
+        "token_values": 1151962626.41,
+        "stake_values": 0,
+        "total_values": 1666806793.93,
+        "sol_balance": 5940604.978353229,
+        "sol_staked_balance": 0
       }
     ],
-    "total": 9570
+    "total": 9528
   }
 }
 ```
@@ -309,5 +324,9 @@ Each item in `data.data`:
 - Double-nested `data.data` is unique to this action among `account` commands — every other list action in this skill returns a bare `data: [...]` array. Reach for `data.data` here, not `data`, when extracting rows.
 - `data.total` is the only action in the `account` group that reports a total count for pagination — combine it with `--page-size` to know how many pages exist (`Math.ceil(total / page_size)`), unlike `tokens`/`stake`/`stake-rewards`, which require paging until a short page comes back.
 - `total_values` is not guaranteed to exactly equal `sol_values + token_values + stake_values` in every row due to independent rounding at the source — treat small discrepancies as expected, not a data bug.
-- A single high-`token_values` outlier (like the first example row, ~$11.5B in token value) is typically a large token's own mint/treasury/liquidity-pool authority account showing up as a "wallet" — the leaderboard ranks addresses by raw on-chain value, with no filtering for whether the address is a real end-user wallet vs. a program-controlled account.
-- `--sort-by` accepts `sol_values`/`stake_values`/`token_values`/`total_values` (default `total_values`); there's no `--address` filter on this action — to check where one specific address ranks, cross-reference its `account portfolio`/`account stake` totals manually rather than searching this endpoint.
+- Top rows are usually not end-user wallets: exchange hot wallets (large `sol_values` + `token_values`), stake-pool / validator accounts (almost all `stake_values`, e.g. the first example row), and token treasury/liquidity accounts (almost all `token_values`, near-zero SOL). The leaderboard ranks addresses by raw on-chain value, with no filtering for real wallets vs. program-controlled accounts — use `account metadata` to label them.
+- `sol_balance`/`sol_staked_balance` are SOL amounts, while the `*_values` fields are USD. Dividing `sol_values / sol_balance` (or `stake_values / sol_staked_balance`) gives the SOL price used for the snapshot. Don't mix the two units.
+- `--sort-by` only accepts `sol_values`/`stake_values`/`token_values`/`total_values` (default `total_values`). You can't sort by `sol_balance`/`sol_staked_balance`, and any other value returns `Validation Error: "sort_by" must be one of [...]`. `--page-size` is strict too: e.g. `50` returns `Validation Error: "page_size" must be one of [10, 20, 30, 40, 60, 100]`.
+- When `--sort-by` is not `total_values`, rows are still the same capped account set, just re-ordered — sorting by `stake_values` does not widen the list to other big stakers outside it.
+- The last page is short (e.g. `total: 9528` with `--page-size 10` → page 953 has 8 rows); paging past it returns `data.data: []`.
+- There's no `--address` filter on this action — to check where one specific address ranks, cross-reference its `account portfolio`/`account stake` totals manually rather than searching this endpoint.

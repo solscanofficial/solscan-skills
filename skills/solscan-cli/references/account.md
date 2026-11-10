@@ -66,7 +66,7 @@ ACTIVITY_BRIDGE_ORDER_IN ACTIVITY_BRIDGE_ORDER_OUT
 
 **`stake-rewards`** / **`reward-export`**: `--address` must be a **stake account** (e.g. `stake_account` from `account stake`), not the owner wallet — an owner address doesn't error, it silently returns empty (`data: []` for `stake-rewards`, header-only CSV for `reward-export`). `stake-rewards` `--page-size` `10/20/30/40/60/100`. `reward-export` defaults to past 1 month if no time filter.
 
-**`leaderboard`**: `--sort-by` `sol_values`\|`stake_values`\|`token_values`\|`total_values`(default) · `--page-size` `10/20/30/40/60/100`. Unlike other list actions, `data` is `{ data: [...], total }` (double-nested), not a bare array. Full field-by-field detail: [responses/account-holdings.md](responses/account-holdings.md#leaderboard).
+**`leaderboard`**: `--sort-by` `sol_values`\|`stake_values`\|`token_values`\|`total_values`(default) · `--sort-order` `asc`\|`desc`(default when omitted) · `--page-size` `10/20/30/40/60/100` (any other value → validation error). Unlike other list actions, `data` is `{ data: [...], total }` (double-nested), not a bare array. Each row has USD values (`sol_values`, `token_values`, `stake_values`, `total_values`) plus raw SOL amounts (`sol_balance`, `sol_staked_balance`). The list is capped (~9.5k accounts, floor ≈ $340k total value). Full field-by-field detail: [responses/account-holdings.md](responses/account-holdings.md#leaderboard).
 
 **`metadata` response fields**: `account_address`, `account_label`, `account_icon`, `account_tags` (e.g. `dex_wallet`), `account_type`, `account_domain`, `funded_by` (deprecated: `funded_by` address + `tx_hash` + `block_time`), `active_age` (days since first funded).
 
